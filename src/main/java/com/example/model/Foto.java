@@ -1,5 +1,7 @@
 package com.example.model;
 
+import java.time.LocalDateTime;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -14,7 +16,7 @@ public class Foto {
     private long idFoto;
     private long idGato;
     private String url;
-    private String fechaFoto;
+    private LocalDateTime fechaFoto;
     private boolean esPrincipal;
     private String descripcion;
 
