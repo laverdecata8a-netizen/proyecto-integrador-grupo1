@@ -21,8 +21,8 @@ public class Foto {
     
     public Foto() {
     }
-    public Foto(long idGato, String url, String fechaFoto, boolean esPrincipal, String descripcion) {
-        this.idGato = idGato;
+
+    public Foto(String url, String fechaFoto, boolean esPrincipal, String descripcion) {
         this.url = url;
         this.fechaFoto = fechaFoto;
         this.esPrincipal = esPrincipal;
