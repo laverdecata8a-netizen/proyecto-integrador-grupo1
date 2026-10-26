@@ -28,6 +28,7 @@ public class Foto {
         this.esPrincipal = esPrincipal;
         this.descripcion = descripcion;
     }
+
     public Foto(long idFoto, long idGato, String url, String fechaFoto, boolean esPrincipal, String descripcion) {
         this.idFoto = idFoto;
         this.idGato = idGato;
@@ -36,6 +37,7 @@ public class Foto {
         this.esPrincipal = esPrincipal;
         this.descripcion = descripcion;
     }
+
     public long getIdFoto() {
         return idFoto;
     }
@@ -72,6 +74,7 @@ public class Foto {
     public void setDescripcion(String descripcion) {
         this.descripcion = descripcion;
     }
+    
     @Override
     public String toString() {
         return "Foto [idFoto=" + idFoto + ", idGato=" + idGato + ", url=" + url + ", fechaFoto=" + fechaFoto
