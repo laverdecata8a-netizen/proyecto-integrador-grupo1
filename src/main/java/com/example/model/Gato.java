@@ -38,7 +38,6 @@ public class Gato {
         this.descripcion = descripcion;
     }
 
-
     public Long getIdGato() {
         return idGato;
     }
