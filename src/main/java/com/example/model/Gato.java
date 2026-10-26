@@ -38,6 +38,47 @@ public class Gato {
         this.descripcion = descripcion;
     }
 
+
+    public Long getIdGato() {
+        return idGato;
+    }
+
+    public void setIdGato(Long idGato) {
+        this.idGato = idGato;
+    }
+
+    public String getNombre() {
+        return nombre;
+    }
+
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
+
+    public String getColor() {
+        return color;
+    }
+
+    public void setColor(String color) {
+        this.color = color;
+    }
+
+    public LocalDate getFechaIngreso() {
+        return fechaIngreso;
+    }
+
+    public void setFechaIngreso(LocalDate fechaIngreso) {
+        this.fechaIngreso = fechaIngreso;
+    }
+
+    public String getDescripcion() {
+        return descripcion;
+    }
+
+    public void setDescripcion(String descripcion) {
+        this.descripcion = descripcion;
+    }
+
     @Override
     public String toString() {
         return "Gato [idGato=" + idGato + ", nombre=" + nombre + ", color=" + color + ", fechaIngreso=" + fechaIngreso
