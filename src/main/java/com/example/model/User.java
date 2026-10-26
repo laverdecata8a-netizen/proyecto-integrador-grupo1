@@ -7,35 +7,35 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 @Entity 
-@Table(name = "USers")
+@Table(name = "Users")
 public class User {
 
     @Id 
     @GeneratedValue (strategy = GenerationType.IDENTITY)
     private Long idUser; 
-    private Long nombre; 
-    private Long apellido; 
-    private Long email; 
-    private Long celular; 
-    private Long password; 
+    private String nombre; 
+    private String apellido; 
+    private String email; 
+    private String celular; 
+    private String password; 
 
     public User() {
     }
 
-    public User(Long apellido, Long celular, Long email, Long nombre, Long password) {
-        this.apellido = apellido;
-        this.celular = celular;
-        this.email = email;
+    public User(String nombre, String apellido, String email, String celular, String password) {
         this.nombre = nombre;
+        this.apellido = apellido;
+        this.email = email;
+        this.celular = celular;
         this.password = password;
     }
 
-    public User(Long apellido, Long celular, Long email, Long idUser, Long nombre, Long password) {
-        this.apellido = apellido;
-        this.celular = celular;
-        this.email = email;
+    public User(Long idUser, String nombre, String apellido, String email, String celular, String password) {
         this.idUser = idUser;
         this.nombre = nombre;
+        this.apellido = apellido;
+        this.email = email;
+        this.celular = celular;
         this.password = password;
     }
 
@@ -47,43 +47,43 @@ public class User {
         this.idUser = idUser;
     }
 
-    public Long getNombre() {
+    public String getNombre() {
         return nombre;
     }
 
-    public void setNombre(Long nombre) {
+    public void setNombre(String nombre) {
         this.nombre = nombre;
     }
 
-    public Long getApellido() {
+    public String getApellido() {
         return apellido;
     }
 
-    public void setApellido(Long apellido) {
+    public void setApellido(String apellido) {
         this.apellido = apellido;
     }
 
-    public Long getEmail() {
+    public String getEmail() {
         return email;
     }
 
-    public void setEmail(Long email) {
+    public void setEmail(String email) {
         this.email = email;
     }
 
-    public Long getCelular() {
+    public String getCelular() {
         return celular;
     }
 
-    public void setCelular(Long celular) {
+    public void setCelular(String celular) {
         this.celular = celular;
     }
 
-    public Long getPassword() {
+    public String getPassword() {
         return password;
     }
 
-    public void setPassword(Long password) {
+    public void setPassword(String password) {
         this.password = password;
     }
 
