@@ -55,10 +55,6 @@ public class MainView extends VerticalLayout {
         add(new H2("GatoGo - Gestión CRUD"), tabs);
     }
 
-    // ==========================================
-    // 1. GATOS
-    // ==========================================
-
     private Component crearSeccionGatos() {
 
         VerticalLayout layout = new VerticalLayout();
@@ -206,9 +202,8 @@ public class MainView extends VerticalLayout {
         return layout;
     }
 
-    // ==========================================
+    
     // 2. FOTOS
-    // ==========================================
 
     private Component crearSeccionFotos() {
 
@@ -376,9 +371,7 @@ public class MainView extends VerticalLayout {
         return layout;
     }
 
-    // ==========================================
     // 3. UBICACIONES
-    // ==========================================
 
     private Component crearSeccionUbicaciones() {
 
@@ -516,9 +509,7 @@ public class MainView extends VerticalLayout {
         return layout;
     }
 
-    // ==========================================
     // 4. AVISTAMIENTOS
-    // ==========================================
 
     private Component crearSeccionAvistamientos() {
 
@@ -690,9 +681,7 @@ public class MainView extends VerticalLayout {
         return layout;
     }
 
-    // ==========================================
-    // 5. USUARIOS
-    // ==========================================
+    // 5. USER
 
     private Component crearSeccionUsuarios() {
 
@@ -857,9 +846,7 @@ public class MainView extends VerticalLayout {
         return layout;
     }
 
-    // ==========================================
     // MÉTODOS AUXILIARES
-    // ==========================================
 
     private Long parseId(TextField field) {
         try {
