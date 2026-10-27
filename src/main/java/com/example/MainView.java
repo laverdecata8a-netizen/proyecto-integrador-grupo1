@@ -29,7 +29,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
-@PageTitle("GatoGo - Gestión CRUD")
+@PageTitle("GatoGo")
 @Route("")
 public class MainView extends VerticalLayout {
 
