@@ -1,6 +1,6 @@
 # GatoGo
 
-![Build](https://img.shields.io/badge/build-ready-success) ![Java](https://img.shields.io/badge/Java-25-orange) ![Vaadin](https://img.shields.io/badge/Vaadin-25.3.0-00B4F0) ![Spring%20Boot](https://img.shields.io/badge/Spring%20Boot-4.1.1-6DB33F) ![License](https://img.shields.io/badge/license-Unlicense-blue)
+![Java](https://img.shields.io/badge/Java-25-orange) ![Vaadin](https://img.shields.io/badge/Vaadin-25.3.0-00B4F0) ![Spring%20Boot](https://img.shields.io/badge/Spring%20Boot-4.1.1-6DB33F) ![License](https://img.shields.io/badge/license-Unlicense-blue)
 
 ## Cabecera
 
@@ -21,19 +21,21 @@ El sistema está pensado como una base funcional para proyectos de seguimiento d
 
 ## Arquitectura
 
-La arquitectura del proyecto se compone de cuatro niveles principales:
+La arquitectura del proyecto se compone de cinco componentes principales:
 
 1. Frontend: interfaz construida con Vaadin y componentes de UI para crear formularios, grillas y notificaciones.
 2. Aplicación principal: Spring Boot actúa como contenedor y punto de arranque de la app.
 3. Modelo de dominio: clases Java que representan las entidades del negocio (`Gato`, `User`, `Ubicacion`, `Foto`, `Avistamiento`).
-4. Capa de presentación y lógica UI: `MainView` centraliza la definición de secciones y acciones CRUD para cada entidad.
+4. Lógica de acceso a datos: `CrudService` usa JPA (`EntityManager`) para crear, consultar, actualizar y eliminar registros en PostgreSQL.
+5. Capa de presentación: `MainView` centraliza las secciones y acciones CRUD para cada entidad.
 
 Diagrama de alto nivel:
 
 - Cliente web -> Vaadin UI -> `MainView`
+- `MainView` -> `CrudService` -> JPA/Hibernate -> PostgreSQL
 - `MainView` -> entidades del dominio
 - `Application` -> Spring Boot runtime
-- Acciones CRUD -> manejo local de datos en memoria y notificaciones del sistema
+- Las acciones CRUD consultan y persisten datos en PostgreSQL; la vista muestra notificaciones del resultado.
 
 ## Modelo de Datos
 
@@ -41,13 +43,9 @@ El modelo de datos del proyecto se organiza alrededor de cinco entidades princip
 
 ![Diagrama MER de GatoGo](docs/GenerateMerDiagram.jpg)
 
-### Relación principal
+### Asociaciones representadas
 
-- Un `User` puede registrar varios `Avistamiento`.
-- Un `Gato` puede tener múltiples `Foto`.
-- Un `Gato` puede estar asociado a varios `Avistamiento`.
-- Un `Avistamiento` puede estar relacionado con un gato, un usuario y una foto específica.
-- Una `Ubicacion` aporta el contexto geográfico donde se observa o se registra el animal.
+El diagrama presenta las asociaciones conceptuales del dominio. En el código actual, `Foto` y `Avistamiento` guardan algunos identificadores relacionados (`idGato`, `idUser` e `idFoto`) como campos numéricos; las entidades no definen asociaciones JPA (`@ManyToOne`, `@OneToMany`, etc.). Además, `Ubicacion` aún no está vinculada a `Avistamiento` en las clases Java.
 
 ## Stack Tecnológico
 
@@ -64,22 +62,44 @@ El modelo de datos del proyecto se organiza alrededor de cinco entidades princip
 
 ### Requisitos previos
 
-- JDK 25 o superior
-- Maven
+- JDK 25
 - Git
+- Una base de datos PostgreSQL accesible
 - Opcional: Docker
+
+El repositorio incluye Maven Wrapper (`mvnw` y `mvnw.cmd`), así que no es necesario instalar Maven por separado.
 
 ### Clonar el repositorio
 
 ```bash
-git clone https://github.com/laverdecata8a-netizen/proyecto-integrador-b1-2026-2-g1.git
-cd proyecto-integrador-b1-2026-2-g1
+git clone https://github.com/laverdecata8a-netizen/proyecto-integrador-grupo1.git
+cd proyecto-integrador-grupo1
 ```
+
+### Configurar la conexión a PostgreSQL
+
+La aplicación obtiene la URL, el usuario y la contraseña de conexión mediante las variables de entorno `DB_URL`, `DB_USERNAME` y `DB_PASSWORD`. Configúralas con los datos de tu base de datos antes de iniciar la aplicación. Por ejemplo, en PowerShell:
+
+```powershell
+$env:DB_URL="jdbc:postgresql://localhost:5432/gatogo"
+$env:DB_USERNAME="<usuario>"
+$env:DB_PASSWORD="<contraseña>"
+```
+
+Reemplaza los valores de ejemplo por los de tu entorno. No guardes contraseñas reales en el repositorio.
 
 ### Ejecutar en modo desarrollo
 
+En macOS o Linux:
+
 ```bash
 ./mvnw spring-boot:run
+```
+
+En Windows PowerShell:
+
+```powershell
+.\mvnw.cmd spring-boot:run
 ```
 
 La aplicación queda disponible en:
@@ -90,8 +110,16 @@ http://localhost:8080
 
 ### Compilar para producción
 
+En macOS o Linux:
+
 ```bash
 ./mvnw clean package
+```
+
+En Windows PowerShell:
+
+```powershell
+.\mvnw.cmd clean package
 ```
 
 ### Crear imagen Docker
@@ -103,8 +131,10 @@ docker build -t gatogo:latest .
 Para ejecutar la imagen:
 
 ```bash
-docker run -p 8080:8080 gatogo:latest
+docker run -p 8080:8080 -e DB_URL="jdbc:postgresql://<host>:5432/<base_de_datos>" -e DB_USERNAME="<usuario>" -e DB_PASSWORD="<contraseña>" gatogo:latest
 ```
+
+Sustituye los valores entre `< >` por los datos de tu base de datos PostgreSQL.
 
 ## Flujo de Trabajo
 
@@ -135,5 +165,4 @@ Este proyecto se distribuye bajo la licencia Unlicense, según se indica en el a
 
 ## Notas adicionales
 
-La aplicación actual presenta una estructura funcional de gestión de información con interfaz en Vaadin y modelos Java bien definidos. El siguiente paso natural del proyecto es la integración con base de datos persistente, validaciones avanzadas y autenticación de usuarios para convertir la solución en un producto más robusto y escalable.
-
+La aplicación ya cuenta con persistencia en PostgreSQL mediante JPA/Hibernate y una interfaz Vaadin para administrar las entidades. Entre las mejoras futuras posibles están completar las asociaciones JPA del modelo, incorporar validaciones avanzadas y añadir autenticación de usuarios.
