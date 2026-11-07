@@ -1,4 +1,3 @@
-
 package com.example;
 
 import com.example.model.Avistamiento;
@@ -7,6 +6,11 @@ import com.example.model.Gato;
 import com.example.model.Ubicacion;
 import com.example.model.User;
 import com.example.service.CrudService;
+
+import com.example.service.GeocodificacionService;
+import com.fasterxml.jackson.databind.JsonNode;
+
+
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasValue;
 import com.vaadin.flow.component.button.Button;
@@ -27,6 +31,7 @@ import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.component.UI;
 
 @PageTitle("GatoGo - Gestión CRUD")
 @Route("")
@@ -34,9 +39,15 @@ public class MainView extends VerticalLayout {
 
     private final CrudService crudService;
 
-    public MainView(CrudService crudService) {
-
-        this.crudService = crudService;
+    private final GeocodificacionService geocodificacionService;
+        
+    public MainView (
+        CrudService crudService,
+        GeocodificacionService geocodificacionService
+    )
+    {
+    this.crudService = crudService;
+    this.geocodificacionService = geocodificacionService;
 
         setSizeFull();
         setPadding(true);
@@ -380,11 +391,16 @@ public class MainView extends VerticalLayout {
         TextField direccionField = new TextField("Dirección");
         TextField barrioField = new TextField("Barrio");
         TextField ciudadField = new TextField("Ciudad");
+        TextField latitudField = new TextField("Latitud");
+        TextField longitudField = new TextField("Longitud");
 
+
+        latitudField.setReadOnly(true);
+        longitudField.setReadOnly(true);
         idField.setReadOnly(true);
 
         FormLayout form = new FormLayout(
-                idField, direccionField, barrioField, ciudadField
+                idField, direccionField, barrioField, ciudadField, latitudField, longitudField
         );
 
         Grid<Ubicacion> grid = new Grid<>(Ubicacion.class, false);
@@ -393,6 +409,8 @@ public class MainView extends VerticalLayout {
         grid.addColumn(Ubicacion::getDireccion).setHeader("Dirección");
         grid.addColumn(Ubicacion::getBarrio).setHeader("Barrio");
         grid.addColumn(Ubicacion::getCiudad).setHeader("Ciudad");
+        grid.addColumn(Ubicacion::getLatitud).setHeader("Latitud");
+        grid.addColumn(Ubicacion::getLongitud).setHeader("Longitud");
 
         Runnable refrescar = () ->
                 grid.setItems(crudService.listarTodos(Ubicacion.class));
@@ -400,6 +418,9 @@ public class MainView extends VerticalLayout {
         Runnable limpiarFormulario = () -> {
             grid.asSingleSelect().clear();
             limpiar(idField, direccionField, barrioField, ciudadField);
+
+            latitudField.clear();
+            longitudField.clear();
         };
 
         refrescar.run();
@@ -413,24 +434,132 @@ public class MainView extends VerticalLayout {
                 direccionField.setValue(texto(ubicacion.getDireccion()));
                 barrioField.setValue(texto(ubicacion.getBarrio()));
                 ciudadField.setValue(texto(ubicacion.getCiudad()));
+                latitudField.setValue(texto(ubicacion.getCiudad()));
+                longitudField.setValue(texto(ubicacion.getCiudad()));
+                
             }
         });
 
-        Button btnCrear = new Button("Crear", e -> {
+        /* Boton de crear ubicacion por geolocalización */
 
-            Ubicacion ubicacion = new Ubicacion();
 
-            ubicacion.setDireccion(direccionField.getValue());
-            ubicacion.setBarrio(barrioField.getValue());
-            ubicacion.setCiudad(ciudadField.getValue());
 
-            crudService.guardar(ubicacion);
-            refrescar.run();
+Button btnCoordenadas = new Button("Obtener mi ubicación actual", e -> {
 
-            ponerId(idField, ubicacion.getIdUbicacion());
+    UI.getCurrent().getPage().executeJs(
+        "return new Promise((resolve, reject) => {" +
+        "if (!navigator.geolocation) {" +
+        "reject('Geolocalización no disponible');" +
+        "return;" +
+        "}" +
+        "navigator.geolocation.getCurrentPosition(" +
+        "posicion => resolve([" +
+        "posicion.coords.latitude," +
+        "posicion.coords.longitude" +
+        "])," +
+        "error => reject(error.message)," +
+        "{enableHighAccuracy: true, timeout: 10000}" +
+        ");" +
+        "});"
+    ).then(resultado -> {
 
-            Notification.show("Ubicación guardada");
-        });
+        double latitud = resultado.get(0).asDouble();
+        double longitud = resultado.get(1).asDouble();
+
+        latitudField.setValue(String.valueOf(latitud));
+        longitudField.setValue(String.valueOf(longitud));
+
+        JsonNode datos = geocodificacionService
+        .obtenerDireccion(latitud, longitud);
+        System.out.println("RESPUESTA DE NOMINATIM:");
+        System.out.println(datos != null
+        ? datos.toPrettyString()
+        : "No se recibieron datos");
+
+if (datos != null && datos.has("address")) {
+
+    JsonNode direccion = datos.get("address");
+
+    String calle = direccion.path("road").asText("");
+    String numero = direccion.path("house_number").asText("");
+
+    String barrio = direccion.path("suburb").asText("");
+
+
+    if (barrio.isEmpty()) {
+        barrio = direccion.path("neighbourhood").asText("");
+    }
+
+    if (barrio.isEmpty()) {
+        barrio = direccion.path("quarter").asText("");
+    }
+
+    if (barrio.isEmpty()) {
+        barrio = direccion.path("residential").asText("");
+        }
+
+    String ciudad = direccion.path("city").asText("");
+
+    if (ciudad.isEmpty()) {
+        ciudad = direccion.path("town").asText("");
+    }
+
+    if (ciudad.isEmpty()) {
+        ciudad = direccion.path("municipality").asText("");
+    }
+
+    direccionField.setValue((calle + " " + numero).trim());
+    barrioField.setValue(barrio);
+    ciudadField.setValue(ciudad);
+
+    Notification.show("Ubicación obtenida correctamente");
+
+} else {
+
+    Notification.show("Se obtuvieron las coordenadas, pero no la dirección");
+
+}
+
+    }, error -> {
+
+        Notification.show("No se pudo obtener la ubicación");
+
+    });
+
+});
+
+    Button btnCrear = new Button("Crear", e -> {    
+
+    if (latitudField.isEmpty() || longitudField.isEmpty()) {
+        Notification.show("Primero debes obtener las coordenadas");
+        return;
+    }
+
+    try {
+        Ubicacion ubicacion = new Ubicacion();
+
+        ubicacion.setDireccion(direccionField.getValue());
+        ubicacion.setBarrio(barrioField.getValue());
+        ubicacion.setCiudad(ciudadField.getValue());
+        ubicacion.setLatitud(
+            Double.parseDouble(latitudField.getValue())
+        );
+
+        ubicacion.setLongitud(
+            Double.parseDouble(longitudField.getValue())
+        );
+
+        crudService.guardar(ubicacion);
+        refrescar.run();
+
+        ponerId(idField, ubicacion.getIdUbicacion());
+
+        Notification.show("Ubicación guardada correctamente");
+
+    } catch (NumberFormatException ex) {
+        Notification.show("Las coordenadas no son válidas");
+    }
+});;
 
         btnCrear.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 
@@ -500,7 +629,7 @@ public class MainView extends VerticalLayout {
 
         layout.add(
                 form,
-                crearAcciones(btnCrear, btnConsultar,
+                crearAcciones(btnCoordenadas,btnCrear, btnConsultar,
                         btnActualizar, btnEliminar, btnLimpiar),
                 grid
         );

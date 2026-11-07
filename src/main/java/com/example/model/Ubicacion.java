@@ -17,6 +17,26 @@ public class Ubicacion {
     private String direccion; 
     private String barrio ; 
     private String ciudad ;
+    private double latitud;
+    private double longitud;
+
+
+    
+    public double getLatitud() {
+        return latitud;
+    }
+
+    public void setLatitud(double latitud) {
+        this.latitud = latitud;
+    }
+
+    public double getLongitud() {
+        return longitud;
+    }
+
+    public void setLongitud(double longitud) {
+        this.longitud = longitud;
+    }
 
     public Ubicacion() {
     }
