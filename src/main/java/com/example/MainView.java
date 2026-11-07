@@ -1,13 +1,12 @@
 
 package com.example;
 
-import com.example.model.Gato;
-import com.example.model.Foto;
-import com.example.model.Ubicacion;
 import com.example.model.Avistamiento;
+import com.example.model.Foto;
+import com.example.model.Gato;
+import com.example.model.Ubicacion;
 import com.example.model.User;
 import com.example.service.CrudService;
-
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasValue;
 import com.vaadin.flow.component.button.Button;
