@@ -41,7 +41,7 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.StreamResource;
 
-@PageTitle("GatoGo - Gestión CRUD")
+@PageTitle("GatoGo")
 @Route("")
 public class MainView extends VerticalLayout {
 
