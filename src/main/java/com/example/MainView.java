@@ -1,18 +1,26 @@
 package com.example;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+
 import com.example.model.Avistamiento;
 import com.example.model.Foto;
 import com.example.model.Gato;
 import com.example.model.Ubicacion;
 import com.example.model.User;
 import com.example.service.CrudService;
-
 import com.example.service.GeocodificacionService;
 import com.fasterxml.jackson.databind.JsonNode;
-
-
+import com.lowagie.text.Document;
+import com.lowagie.text.DocumentException;
+import com.lowagie.text.Paragraph;
+import com.lowagie.text.pdf.PdfPTable;
+import com.lowagie.text.pdf.PdfWriter;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasValue;
+import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.checkbox.Checkbox;
@@ -31,7 +39,7 @@ import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.component.UI;
+import com.vaadin.flow.server.StreamResource;
 
 @PageTitle("GatoGo - Gestión CRUD")
 @Route("")
@@ -964,15 +972,62 @@ if (datos != null && datos.has("address")) {
                 "Limpiar", e -> limpiarFormulario.run()
         );
 
+        Anchor descargarPdf = new Anchor(
+                new StreamResource(
+                        "extracto-usuarios.pdf",
+                        this::generarExtractoUsuarios
+                ),
+                "Descargar extracto de usuarios"
+        );
+
         layout.add(
                 form,
                 crearAcciones(btnCrear, btnConsultar,
                         btnActualizar, btnEliminar, btnLimpiar),
+                descargarPdf,
                 grid
         );
 
         return layout;
     }
+
+    private InputStream generarExtractoUsuarios() {
+    ByteArrayOutputStream salida = new ByteArrayOutputStream();
+    Document documento = new Document();
+
+    try {
+        PdfWriter.getInstance(documento, salida);
+        documento.open();
+
+        documento.add(new Paragraph("Extracto de usuarios"));
+
+        PdfPTable tabla = new PdfPTable(5);
+        tabla.setWidthPercentage(100);
+
+        tabla.addCell("ID");
+        tabla.addCell("Nombre");
+        tabla.addCell("Apellido");
+        tabla.addCell("Email");
+        tabla.addCell("Celular");
+
+        for (User user : crudService.listarTodos(User.class)) {
+            tabla.addCell(numero(user.getIdUser()));
+            tabla.addCell(texto(user.getNombre()));
+            tabla.addCell(texto(user.getApellido()));
+            tabla.addCell(texto(user.getEmail()));
+            tabla.addCell(texto(user.getCelular()));
+        }
+
+        documento.add(tabla);
+        documento.close();
+
+        return new ByteArrayInputStream(salida.toByteArray());
+    } catch (DocumentException ex) {
+        throw new IllegalStateException(
+                "No se pudo generar el extracto de usuarios", ex
+        );
+    }
+}
 
     // MÉTODOS AUXILIARES
 
